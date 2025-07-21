@@ -1,0 +1,38 @@
+my_env/
+*/my_env/
+
+SpotifyAdderWebsite/spotifyadder/.env
+SpotifyAdderWebsite/spotifyadder/cert.crt
+SpotifyAdderWebsite/spotifyadder/cert.key
+client_secret_8677548857
+
+
+
+# Python
+__pycache__/
+*.pyc
+
+# Virtual environments
+my_env/
+*/my_env/
+
+# Django env files
+*.env
+
+# Certificates
+*.crt
+*.key
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# DBs
+
+*.sqlite3
+*.db
+
+*.sql
+*.dump
+*.backup
+

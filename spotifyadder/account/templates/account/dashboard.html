@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+
+<h1>Dashboard</h1>
+{% if request.user.is_authenticated %}
+  {% with total_images_created=request.user.images_created.count %}
+    <p>Welcome to your dashboard. You have bookmarked {{ total_images_created}} image{{ total_images_created|pluralize }}.</p>
+  {% endwith %}
+
+  <p>Drag the following button to your bookmarks toolbar to bookmark song Titles 
+from YouTube → <a href="javascript:{% include "bookmarklet_launcher.js" %}" class="button">Bookmark i!t</a></p>
+
+  <p>You can also <a href="{% url 'edit' %}">edit your profile</a> or <a
+  href="{% url 'password_change' %}">change your password</a>.</p>
+
+{% if spotify_connected %}
+  <p>Your Spotify account is connected as {{ spotify_name }}.</p>
+  <form action="{% url 'social:disconnect' 'spotify' %}" method="post">
+    {% csrf_token %}
+    <button type="submit">Disconnect Spotify</button>
+  </form>
+{% else %}
+  <a href="{% url 'social:begin' 'spotify' %}?next={{ request.path }}">Connect Spotify</a>
+{% endif %}
+
+
+  {% else %}
+<p>Welcome to Spotify Title Adder.Please Login With Your Account or register a new one!</p>
+
+  <a href="{% url 'login' %}">Log-in</a>
+  <a href ="{% url 'register' %}"> Register</a>
+{% endif %}
+
+
+{% endblock %}
+
+

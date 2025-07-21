@@ -1,0 +1,51 @@
+{# templates/songs/song/edit.html #}
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Edit “{{ song.title }}”{% endblock %}
+
+{% block content %}
+  <h1>Edit “{{ song.title }}”</h1>
+  <p>Update the song info or change the album art below.</p>
+
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ song_form.non_field_errors }}
+
+    <p>
+      {{ song_form.title.label_tag }}<br>
+      {{ song_form.title }}
+      {{ song_form.title.errors }}
+    </p>
+    <p>
+      {{ song_form.artist.label_tag }}<br>
+      {{ song_form.artist }}
+      {{ song_form.artist.errors }}
+    </p>
+    <p>
+      {{ song_form.album.label_tag }}<br>
+      {{ song_form.album }}
+      {{ song_form.album.errors }}
+    </p>
+    <p>
+      {{ song_form.description.label_tag }}<br>
+      {{ song_form.description }}
+      {{ song_form.description.errors }}
+    </p>
+
+    <p>
+      {{ song_form.image.label_tag }}<br>
+      {# preview current or default image #}
+      {% if song.image %}
+        <img src="{{ song.image.url }}" alt="Current album art" style="max-width:200px; display:block; margin-bottom:0.5em;">
+      {% else %}
+        <img src="/media/default-album-img.svg" alt="Default album art" style="max-width:200px; display:block; margin-bottom:0.5em;">
+      {% endif %}
+      {{ song_form.image }}
+      {{ song_form.image.errors }}
+    </p>
+
+    <button type="submit">Save changes</button>
+  </form>
+{% endblock %}
+

@@ -1,0 +1,22 @@
+{% load easy_thumbnails_tags %}
+{% for song in songs %}
+  <div class="song">
+    <a href="{{ song.get_absolute_url }}">
+      <div class="thumb">
+        {% if song.image and song.image.name != 'default-album-img.svg' %}
+          <img src="{{ song.image.url }}"
+               alt="{{ song.title }}">
+        {% else %}
+          <img src="/media/default-album-img.svg"
+               alt="Default album art">
+        {% endif %}
+      </div>
+    </a>    
+    <div class="info">  
+      <a href="{{ song.get_absolute_url }}" class="title">
+        {{ song.title }} - {{ song.artist}}
+      </a>
+
+    </div>
+  </div>
+{% endfor %}

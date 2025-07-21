@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}{{ image.title }}{% endblock %}
+{% load thumbnail %}
+
+{% load static %}
+
+
+{% block content %}
+<h1>{{ song.title }} - {{song.artist}}</h1>
+ <a href="{{ song.get_absolute_url }}">
+      {% thumbnail song.image 300x300 crop="smart" as im %}
+      <a href="{{ song.get_absolute_url }}">
+        {% if song.image and song.image.name != 'default-album-img.svg' %}
+          <img src="{{ im.url }}">
+        {% else %}
+          <img src="/media/default-album-img.svg"
+               class="song-detail"
+               alt="Default album art"
+              width="300"
+              height="300">
+        {% endif %}
+        
+      </a>
+    </a>
+ 
+  {% with total_likes=song.users_like.count users_like=song.users_like.all %}
+    <div class="song-info">
+      <div>
+        <span class="count">
+          <span class="total">{{ total_likes }}</span>
+          like{{ total_likes|pluralize }}
+        </span>
+        <a href="#" data-id="{{ song.id }}" data-action="{% if request.user in users_like %}un{% endif %}like"
+    class="like button">
+          {% if request.user not in users_like %}
+            Like
+          {% else %}
+            Unlike
+          {% endif %}
+        </a>
+      </div>
+      {{ song.description|linebreaks }}
+    </div>
+    <div class="song-likes">
+      {% for user in users_like %}
+        <div>
+          {% if user.profile.photo %}
+            <img src="{{ user.profile.photo.url }}">
+          {% endif %}
+          <p>{{ user.first_name }}</p>
+        </div>  
+      {% empty %}
+        Nobody likes this image yet.
+      {% endfor %}
+  </div> 
+
+      {% if request.user.is_authenticated and song.user == request.user or request.user.is_staff %}
+        
+          <script src="{% static 'js/spotify_code.js' %}"></script>
+          <div class="spotify-actions">
+
+            {% csrf_token %}
+    <button type="button"
+            id="add-to-spotify-btn"
+            data-song-id="{{ song.id }}"
+            data-title="{{ song.title|escapejs }}"
+            data-artist="{{ song.artist|escapejs }}">
+      Add to Spotify
+    </button>
+    <span id="spotify-status" style="margin-left:8px;"></span>
+  </div>
+
+          <a href="{% url 'songs:edit' song.pk %}">Edit the song info</a><br>
+
+          <form action="{% url 'songs:delete' song.pk %}" method="post"
+                onsubmit="return confirm('Delete this song permanently?');"
+                style="display:inline-block; margin-top:6px;">
+            {% csrf_token %}
+            <button type="submit" class="danger-button">Delete this song</button>
+          </form>
+        
+      {% endif %}
+  {% endwith %}
+{% endblock %}
+
+
+
+
+{% block domready %}
+  const url = '{% url "songs:like" %}';
+  var options = {
+    method: 'POST',
+    headers: {'X-CSRFToken': csrftoken},
+    mode: 'same-origin'
+  }
+
+  document.querySelector('a.like')
+          .addEventListener('click', function(e){
+    e.preventDefault();
+    var likeButton = this;
+
+     
+  
+    // add request body
+    var formData = new FormData();
+    formData.append('id', likeButton.dataset.id);
+    formData.append('action', likeButton.dataset.action);
+    options['body'] = formData;
+
+    // send HTTP request
+    fetch(url, options)
+    .then(response => response.json())
+    .then(data => {
+      if (data['status'] === 'ok')
+      {
+        var previousAction = likeButton.dataset.action;
+
+        // toggle button text and data-action
+        var action = previousAction === 'like' ? 'unlike' : 'like';
+        likeButton.dataset.action = action;
+        likeButton.innerHTML = action;
+
+        // update like count
+        var likeCount = document.querySelector('span.count .total');
+        var totalLikes = parseInt(likeCount.innerHTML);
+        likeCount.innerHTML = previousAction === 'like' ? totalLikes + 1 : totalLikes - 1;
+      }
+    })
+  });
+{% endblock %}
+
