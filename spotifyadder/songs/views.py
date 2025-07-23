@@ -165,7 +165,6 @@ def song_add_to_spotify(request, pk):
     # 1. Get spotify social auth
     try:
         sa = request.user.social_auth.get(provider='spotify')
-        print("hello", sa)
     except UserSocialAuth.DoesNotExist:
         return JsonResponse({'error': 'Spotify not connected'}, status=400)
 
@@ -173,14 +172,10 @@ def song_add_to_spotify(request, pk):
     try:
         strategy = load_strategy()
         access = sa.get_access_token(strategy)
-        print("Access: ", access)
-        if isinstance(access, dict):
-            access_token = access.get('access_token')
-        else:
-            access_token = access
+        access_token = access['access_token'] if isinstance(access, dict) else access
     except Exception as e:
         return JsonResponse({'error': f'Cannot obtain access token: {e}'}, status=500)
-   
+
     # 3. Parse JSON body
     try:
         payload = json.loads(request.body.decode('utf-8'))
@@ -189,13 +184,25 @@ def song_add_to_spotify(request, pk):
 
     title = (payload.get('title') or song.title).strip()
     artist = (payload.get('artist') or song.artist).strip()
-    print("title: ", title)
-    print("artist: ", artist)
 
     trackUri = getTrackUri(title,artist,access_token)
-    print(trackUri)
 
-    addToPlayList("My First Playlist", trackUri, access_token)
+    playlist_id, info_number = addToPlayList("My Bookmark Playlist", trackUri, access_token)
+   # 1 = song is not in playlist. 2= song already in playlist
+    try:    
+        if playlist_id and info_number == 1:
+            message = f'"{title}" from "{artist}" added to "My Bookmark Playlist"'
+        if info_number == 2:
+            message =  f'"{title}" from "{artist}" already added to that playlist' 
+    except Exception as e:
+            message = request,f'there was an error: {e}' 
+
+    return JsonResponse({
+        "ok": bool(playlist_id),
+        "track_uri": trackUri,
+        "playlist_id": playlist_id,
+        "message": message,
+    })
 
 
 
@@ -224,10 +231,7 @@ def fetchWebApi(endpoint, method, params, token, body=None, timeout=10, retry_on
         "Authorization": f"Bearer {token}",
         "Accept": "application/json"
     }
-    print("Body: ", body)
     data = json.dumps(body) if body is not None else None
-    print("Data ", data)
-
 
     resp = requests.request(
         method.upper(),
@@ -238,7 +242,6 @@ def fetchWebApi(endpoint, method, params, token, body=None, timeout=10, retry_on
         timeout=timeout
     )
 
-    
     social_auth_obj=None
 
     if resp.status_code == 401 and retry_on_401 and social_auth_obj:
@@ -269,8 +272,6 @@ def getTrackUri(title, artist, token):
         "GET",
         {"q": query, "type": "track", "limit": 1}, 
         token,
-       
-       
 )
     items = payload.get("tracks", {}).get("items", [])
     if items:
@@ -278,7 +279,7 @@ def getTrackUri(title, artist, token):
 
 def addToPlayList(playlistName, trackUri, token): 
     playlist_description="Playlist created by app"
-    public = False
+    public = True
 
     if not trackUri:
         raise RuntimeError("Track URI required")
@@ -300,11 +301,28 @@ def addToPlayList(playlistName, trackUri, token):
         params={"limit": 50},
     )
 
-    target_id = None
+
+    target_id = 0
     for pl in playlists.get("items", []):
         if pl["name"] == playlistName:
             target_id = pl["id"]
             break
+    # 2.5
+
+    endpoint = f"playlists/{target_id}/tracks"
+    params = {"limit": 100, "fields": "items(track.uri),next"}
+    while True:
+        resp = fetchWebApi(endpoint, "GET", params, token)
+        for item in resp.get("items", []):
+            if item.get("track", {}).get("uri") == trackUri:
+                return False, 2 
+        next_url = resp.get("next")
+        if not next_url:
+            break
+        # when Spotify gives a 'next' URL, just follow it directly
+        endpoint = next_url  # fetchWebApi handles full URLs
+        params = {}
+    
 
     # 3. Create if missing
     if not target_id:
@@ -322,6 +340,8 @@ def addToPlayList(playlistName, trackUri, token):
         )
         target_id = created["id"]
 
+   
+   
     # 4. Add track (POST track URIs)
     fetchWebApi(
         f"playlists/{target_id}/tracks",
@@ -331,34 +351,7 @@ def addToPlayList(playlistName, trackUri, token):
         body={"uris": [trackUri]},
     )
 
-    return target_id 
+    return target_id, 1 
 
 
-def get_token(user):
-    """
-    Return a *fresh* Spotify access token string for the given user.
-    Uses social-auth-app-django to refresh if expired.
 
-    Raises RuntimeError if the user is not connected.
-    """
-    try:
-        sa = user.social_auth.get(provider='spotify')
-    except UserSocialAuth.DoesNotExist:
-        raise RuntimeError("Spotify not connected for this user")
-
-    # Different versions of social-auth may have different signatures/returns.
-    access_obj = sa.get_access_token()  # no args for modern versions
-    if isinstance(access_obj, dict):
-        token = access_obj.get("access_token")
-    else:
-        token = access_obj
-    if not token:
-        # very old versions might require strategy
-        try:
-            access_obj = sa.get_access_token(load_strategy())
-            token = access_obj.get("access_token") if isinstance(access_obj, dict) else access_obj
-        except Exception as e:
-            raise RuntimeError(f"Cannot obtain access token: {e}")
-    if not token:
-        raise RuntimeError("Empty access token")
-    return token

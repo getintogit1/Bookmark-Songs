@@ -54,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!btn) return;
   const statusEl = document.getElementById('spotify-status');
 
-  btn.addEventListener('click', async () => {
+  btn.addEventListener('click', async (e) => {
+    e.preventDefault();
     statusEl.textContent = 'Adding…';
     btn.disabled = true;
 
@@ -63,23 +64,37 @@ document.addEventListener('DOMContentLoaded', () => {
       artist: btn.dataset.artist
     };
 
-    const csrfToken = getCSRFToken();
-    console.log('CSRF token:', csrfToken);      
-    const res = await fetch(`/songs/${btn.dataset.songId}/add-to-spotify/`, {
+    try {
+      const res = await fetch(`/songs/${btn.dataset.songId}/add-to-spotify/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'X-CSRFToken': csrfToken
+          'Accept': 'application/json',
+          'X-CSRFToken': getCSRFToken()
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
+        credentials: 'same-origin' // send cookies/CSRF
       });
-        console.log(payload);
-    })
-})
+
+      let data = {};
+      try { data = await res.json(); } catch (_) {}
+
+      if (!res.ok) {
+        statusEl.textContent = data.error || `Error (${res.status})`;
+      } else {
+        statusEl.textContent = data.message ;
+      }
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = 'Network error';
+    } finally {
+      btn.disabled = false;
+    }
+  });
+});
 
 function getCSRFToken() {
   const name = 'csrftoken=';
-  return document.cookie.split(';').map(c=>c.trim()).find(c=>c.startsWith(name))?.slice(name.length) || '';
+  return document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name))?.slice(name.length) || '';
 }
 
