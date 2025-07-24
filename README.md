@@ -12,6 +12,43 @@ A Django-based web application that allows users to:
 
 ---
 
+## Tech Stack
+<p align="center">
+  <!-- Frontend -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" width="50" height="50" alt="HTML5"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/css3/css3-original.svg" width="50" height="50" alt="CSS3"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="50" height="50" alt="JavaScript"/>
+  
+  <!-- Backend -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" width="50" height="50" alt="Python"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg" width="50" height="50" alt="Django"/>
+  
+  <!-- Database & Cache -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg" width="50" height="50" alt="PostgreSQL"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg" width="50" height="50" alt="Redis"/>
+  
+  <!-- DevOps -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" width="50" height="50" alt="Docker"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="50" height="50" alt="Nginx"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50" height="50" alt="Git"/>
+  
+  <!-- Other -->
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" width="50" height="50" alt="Bookmarklet"/>
+  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spotify/spotify-original.svg" width="50" height="50" alt="Spotify API"/>
+</p>
+
+* **Backend**: Django, Django REST Framework
+* **Frontend**: Django Templates, JavaScript (ES6)
+* **Auth**: Django Allauth (Google OAuth2), Django auth
+* **Spotify API**: `social-auth-app-django` with Spotify OAuth2 backend
+* **YouTube Bookmarklet**: Custom JavaScript bookmarklet
+* **Real-Time Feed**: Django channels (optional) or AJAX polling
+* **Database**: PostgreSQL
+* **Cache & Ranking**: Redis
+* **Deployment**: Docker, Gunicorn, Nginx
+
+---
+
 ## Table of Contents
 
 1. [Features](#features)
@@ -37,20 +74,6 @@ A Django-based web application that allows users to:
 * **User Discovery**: Browse other users’ profiles, saved songs, and like or save them.
 * **Social Feed**: Real-time feed of follow/unfollow and like actions of users you follow.
 * **Redis Rankings**: A global leaderboard of the most-bookmarked songs powered by Redis.
-
----
-
-## Tech Stack
-
-* **Backend**: Django, Django REST Framework
-* **Frontend**: Django Templates, JavaScript (ES6)
-* **Auth**: Django Allauth (Google OAuth2), Django auth
-* **Spotify API**: `social-auth-app-django` with Spotify OAuth2 backend
-* **YouTube Bookmarklet**: Custom JavaScript bookmarklet
-* **Real-Time Feed**: Django channels (optional) or AJAX polling
-* **Database**: PostgreSQL
-* **Cache & Ranking**: Redis
-* **Deployment**: Docker, Gunicorn, Nginx
 
 ---
 
