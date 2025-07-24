@@ -18,7 +18,16 @@ import json
 
 
 from social_django.utils import load_strategy
+from actions.utils import create_action
 
+
+import redis
+from django.conf import settings
+
+# connect to redis
+r = redis.Redis(
+    host=settings.REDIS_HOST, port=settings.REDIS_PORT, db=settings.REDIS_DB
+)
 
 @login_required
 def song_create(request):
@@ -32,6 +41,9 @@ def song_create(request):
             # assign current user to the item
             new_song.user = request.user
             new_song.save()
+            create_action(
+                request.user, "bookmarked song", new_song
+            )  # created an action for activity stream
             messages.success(request, "Song added successfully")
             # redirect to new created item detail view
             return redirect(new_song.get_absolute_url())
@@ -43,10 +55,13 @@ def song_create(request):
 
 def song_detail(request, id, slug):
     song = get_object_or_404(Song, id=id, slug=slug)
+    total_views = r.incr(f"song:{song.id}:views")
+    # increment image ranking by 1
+    r.zincrby("song_ranking", 1, song.id)
     return render(
         request,
         "songs/song/detail.html",
-        {"section": "songs", "song": song},
+        {"section": "songs", "song": song,"total_views": total_views},
     )
 
 
@@ -60,6 +75,8 @@ def song_like(request):
             song = Song.objects.get(id=song_id)
             if action == "like":
                 song.users_like.add(request.user)
+                create_action(
+                    request.user, "likes", song) 
             else:
                 song.users_like.remove(request.user)
             return JsonResponse({"status": "ok"})
@@ -354,4 +371,16 @@ def addToPlayList(playlistName, trackUri, token):
     return target_id, 1 
 
 
-
+@login_required
+def song_ranking(request):
+    # get song ranking dictionary
+    song_ranking = r.zrange("song_ranking", 0, -1, desc=True)[:10]
+    song_ranking_ids = [int(id) for id in song_ranking]
+    # get most viewed songs
+    most_viewed = list(Song.objects.filter(id__in=song_ranking_ids))
+    most_viewed.sort(key=lambda x: song_ranking_ids.index(x.id))
+    return render(
+        request,
+        "songs/song/ranking.html",
+        {"section": "songs", "most_viewed": most_viewed},
+    )

@@ -5,8 +5,8 @@
 
 <h1>Dashboard</h1>
 {% if request.user.is_authenticated %}
-  {% with total_images_created=request.user.images_created.count %}
-    <p>Welcome to your dashboard. You have bookmarked {{ total_images_created}} image{{ total_images_created|pluralize }}.</p>
+  {% with total_songs_created=request.user.tracks_created.count %}
+    <p>Welcome to your dashboard. You have bookmarked {{ total_songs_created}} song{{ total_songs_created|pluralize }}.</p>
   {% endwith %}
 
   <p>Drag the following button to your bookmarks toolbar to bookmark song Titles 
@@ -32,6 +32,14 @@ from YouTube → <a href="javascript:{% include "bookmarklet_launcher.js" %}" cl
   <a href="{% url 'login' %}">Log-in</a>
   <a href ="{% url 'register' %}"> Register</a>
 {% endif %}
+
+
+<h2>What's happening</h2>
+<div id="action-list">
+  {% for action in actions %}
+    {% include "actions/action/detail.html" %}
+  {% endfor %}
+</div>
 
 
 {% endblock %}

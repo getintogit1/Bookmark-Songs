@@ -44,9 +44,12 @@ INSTALLED_APPS = [
     'django_extensions',
     'songs.apps.SongsConfig',
     'easy_thumbnails',
+    'actions.apps.ActionsConfig',
+    'debug_toolbar',
     ]
 
 MIDDLEWARE = [
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -54,6 +57,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+INTERNAL_IPS = [
+'127.0.0.1',
 ]
 
 ROOT_URLCONF = 'spotifyadder.urls'
@@ -185,3 +192,22 @@ SOCIAL_AUTH_SPOTIFY_SCOPE = [
     # 'user-library-modify',     # keep if you also save tracks to library
 ]
 SOCIAL_AUTH_SPOTIFY_REDIRECT_URI = 'https://127.0.0.1:8000/spotify/complete/'
+
+
+
+from django.urls import reverse_lazy
+ABSOLUTE_URL_OVERRIDES = {
+'auth.user': lambda u: reverse_lazy('user_detail', args=[u.username])
+}
+
+
+"""By using the username instead of the user ID in the user_detail URL pattern, you en-
+hance both usability and security. Usernames, unlike sequential IDs, thwart enumeration
+attacks by obscuring your data structure. This makes it harder for attackers to predict
+URLs and formulate attack vectors.
+"""
+
+
+REDIS_HOST = 'localhost'
+REDIS_PORT = 6379
+REDIS_DB = 0

@@ -29,6 +29,7 @@ urlpatterns = [
     path('songs/', include('songs.urls', namespace='songs')),
 
     path('spotify/', include('social_django.urls', namespace='social')),
+    path('__debug__/', include('debug_toolbar.urls')),
 ]
 
 if settings.DEBUG:
