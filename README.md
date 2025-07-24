@@ -32,8 +32,7 @@ A Django-based web application that allows users to:
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nginx/nginx-original.svg" width="50" height="50" alt="Nginx"/>
   <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" width="50" height="50" alt="Git"/>
   
-<img
-  src="https://cdn.jsdelivr.net/npm/simple-icons@v10/icons/spotify.svg" width="50" height="50" alt="Spotify Logo"/>
+<img src="https://cdn.jsdelivr.net/npm/simple-icons@v10/icons/spotify.svg" width="50" height="50" alt="Spotify Logo"/>
 
 </p>
 
