@@ -91,8 +91,8 @@ A Django-based web application that allows users to:
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/spotify-adder-webapp.git
-   cd spotify-adder-webapp
+   git clone https://github.com/getintogit1/Bookmark-Songs.git
+   cd Bookmark-Songs
    ```
 
 2. **Create and activate a virtual environment**
@@ -171,29 +171,6 @@ Visit `http://127.0.0.1:8000/` in your browser.
 5. **Discover Users**: Browse Users → View Profiles → Follow / Unfollow.
 6. **Activity Feed**: See what your followings are doing in real time.
 7. **Rankings**: View the global Redis-powered leaderboard in the Rankings page.
-
----
-
-## Testing
-
-```bash
-pytest
-```
-
----
-
-## Deployment
-
-1. **Build Docker image**
-
-   ```bash
-   docker build -t spotify-adder-webapp .
-   ```
-2. **Run with Docker Compose**
-
-   ```bash
-   docker-compose up -d --build
-   ```
 
 ---
 
