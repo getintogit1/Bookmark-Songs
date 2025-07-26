@@ -41,7 +41,7 @@ A Django-based web application that allows users to:
 * **Auth**: Django Allauth (Google OAuth2), Django auth
 * **Spotify API**: `social-auth-app-django` with Spotify OAuth2 backend
 * **YouTube Bookmarklet**: Custom JavaScript bookmarklet
-* **Real-Time Feed**: Django channels (optional) or AJAX polling
+* **Real-Time Feed**: AJAX polling 
 * **Database**: PostgreSQL
 * **Cache & Ranking**: Redis
 * **Deployment**: Docker, Gunicorn, Nginx
